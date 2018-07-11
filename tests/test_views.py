@@ -1,6 +1,6 @@
 # tests/test_views.py
 from flask_testing import TestCase
-from wsgi import app, the_products, ProductDb
+from wsgi import app, the_products
 
 class TestViews(TestCase):
     def setUp(self):

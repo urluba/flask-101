@@ -55,23 +55,25 @@ def no_content():
     return '', 204
 
 def created(product, message='OK'):
-    message = {
+    payload = {
             'status': 201,
             'message': message,
             'product': product,
+            'url': f'{request.url}/{product["id"]}',
 
     }
-    resp = jsonify(message)
+    resp = jsonify(payload)
     resp.status_code = 201
 
-    logging.debug('Created returned %s', message)
+    logging.debug('Created returned %s', payload)
     return resp
 
 @app.errorhandler(404)
 def not_found(error=None):
     message = {
             'status': 404,
-            'message': 'Not Found: ' + request.url,
+            'message': 'Not Found',
+            'url': request.url,
     }
     resp = jsonify(message)
     resp.status_code = 404
@@ -83,6 +85,7 @@ def bad_request(error='Bad Request'):
     message = {
             'status': 400,
             'message': error,
+            'url': request.url,
     }
     resp = jsonify(message)
     resp.status_code = 400

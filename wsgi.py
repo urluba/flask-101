@@ -1,6 +1,10 @@
-from flask import Flask, jsonify, request
+# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring
+
 from uuid import uuid4
 import logging
+
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -49,28 +53,26 @@ class ProductDb:
         if product:
             product.update(new_product)
             return product
-        else:
-            return None
+
+        return None
 
 
 the_products = ProductDb(
     [
-        { 'id': 1, 'name': 'Skello' },
-        { 'id': 2, 'name': 'Socialive.tv' },
+        {'id': 1, 'name': 'Skello'},
+        {'id': 2, 'name': 'Socialive.tv'},
     ]
 )
 
-# @app.errorhandler(204) TODO
 def no_content():
     return '', 204
 
-def created(product, message='OK'):
+def created(product: dict, message: str = 'OK'):
     payload = {
-            'status': 201,
-            'message': message,
-            'product': product,
-            'url': f'{request.url}/{product["id"]}',
-
+        'status': 201,
+        'message': message,
+        'product': product,
+        'url': f'{request.url}/{product["id"]}',
     }
     resp = jsonify(payload)
     resp.status_code = 201
@@ -92,9 +94,9 @@ def bad_request(error='Bad Request'):
 
 def error_4xx(status_code, message):
     message = {
-            'status': status_code,
-            'message': message,
-            'url': request.url,
+        'status': status_code,
+        'message': message,
+        'url': request.url,
     }
     resp = jsonify(message)
     resp.status_code = status_code
@@ -131,12 +133,10 @@ def get_productid(productid: str):
 
 @app.route('/api/v1/products/<int:productid>', methods=['DELETE'])
 def delete_productid(productid: str):
-    result = the_products.delete(productid)
-    
-    if result:
+    if the_products.delete(productid):
         return no_content()
-    else:
-        return not_found()
+
+    return not_found()
 
 @app.route('/api/v1/products/<int:productid>', methods=['PATCH'])
 def patch_productid(productid: str):
@@ -144,8 +144,8 @@ def patch_productid(productid: str):
         productid,
         request.get_json()
     )
-    
+
     if result:
         return no_content()
-    else:
-        return unprocessable_entity()
+
+    return unprocessable_entity()

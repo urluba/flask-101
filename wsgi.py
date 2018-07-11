@@ -120,28 +120,28 @@ def post_product():
 
     return bad_request()
 
-@app.route('/api/v1/products/<productid>', methods=['GET'])
+@app.route('/api/v1/products/<int:productid>', methods=['GET'])
 def get_productid(productid: str):
-    product = the_products.get(int(productid))
+    product = the_products.get(productid)
 
     if product:
         return jsonify(product)
 
     return not_found()
 
-@app.route('/api/v1/products/<productid>', methods=['DELETE'])
+@app.route('/api/v1/products/<int:productid>', methods=['DELETE'])
 def delete_productid(productid: str):
-    result = the_products.delete(int(productid))
+    result = the_products.delete(productid)
     
     if result:
         return no_content()
     else:
         return not_found()
 
-@app.route('/api/v1/products/<productid>', methods=['PATCH'])
+@app.route('/api/v1/products/<int:productid>', methods=['PATCH'])
 def patch_productid(productid: str):
     result = the_products.modify(
-        int(productid),
+        productid,
         request.get_json()
     )
     

@@ -43,6 +43,16 @@ class ProductDb:
 
         return new_product
 
+    def modify(self, id: int, new_product: dict) -> dict:
+        product = self.get(id)
+
+        if product:
+            product.update(new_product)
+            return product
+        else:
+            return None
+
+
 the_products = ProductDb(
     [
         { 'id': 1, 'name': 'Skello' },
@@ -68,27 +78,26 @@ def created(product, message='OK'):
     logging.debug('Created returned %s', payload)
     return resp
 
+@app.errorhandler(422)
+def unprocessable_entity(error=None):
+    return error_4xx(422, message=error)
+
 @app.errorhandler(404)
 def not_found(error=None):
-    message = {
-            'status': 404,
-            'message': 'Not Found',
-            'url': request.url,
-    }
-    resp = jsonify(message)
-    resp.status_code = 404
-
-    return resp
+    return error_4xx(404, message=error)
 
 @app.errorhandler(400)
 def bad_request(error='Bad Request'):
+    return error_4xx(400, message=error)
+
+def error_4xx(status_code, message):
     message = {
-            'status': 400,
-            'message': error,
+            'status': status_code,
+            'message': message,
             'url': request.url,
     }
     resp = jsonify(message)
-    resp.status_code = 400
+    resp.status_code = status_code
 
     return resp
 
@@ -128,3 +137,15 @@ def delete_productid(productid: str):
         return no_content()
     else:
         return not_found()
+
+@app.route('/api/v1/products/<productid>', methods=['PATCH'])
+def patch_productid(productid: str):
+    result = the_products.modify(
+        int(productid),
+        request.get_json()
+    )
+    
+    if result:
+        return no_content()
+    else:
+        return unprocessable_entity()

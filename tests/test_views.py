@@ -14,6 +14,7 @@ class TestViews(TestCase):
         app.config['TESTING'] = True
         return app
 
+    # TODO move productdb test into its own file
     def test_productdb_add(self):
         result = the_products.add({'name': 'Bidule'})
         self.assertTrue(result)
@@ -22,6 +23,16 @@ class TestViews(TestCase):
         self.assertIsInstance(product, dict)
         self.assertEquals(product['name'], 'Bidule')
 
+    def test_productdb_modify(self):
+        product = the_products.get(3)
+        self.assertEquals(product['name'], 'Truc')
+        the_products.modify(3, {'name': 'Machin'})
+        new_product = the_products.get(3)
+        self.assertEquals(new_product['name'], 'Machin')
+        self.assertEquals(new_product['id'], product['id'])
+
+
+    # True tests of views
     def test_post_product(self):
         payload = {'name': 'test_post'}
         response = self.client.post(
@@ -66,3 +77,24 @@ class TestViews(TestCase):
         products = response.json
         self.assertIsInstance(products, list)
         self.assertGreater(len(products), 3) # 3 is not a mistake here.
+
+    def test_modify_product(self):
+        # { 'id': 3, 'name': 'Truc' },
+        payload = {'name': 'Bidule'}
+        response = self.client.patch(
+            "/api/v1/products/3",
+            json=payload
+        )
+        self.assertEquals(response.status_code, 204)
+
+        product = self.client.get("/api/v1/products/3").json
+        self.assertEquals(product['name'], 'Bidule')
+
+    def test_modify_missing_product(self):
+        # { 'id': 3, 'name': 'Truc' },
+        payload = {'name': 'Bidule'}
+        response = self.client.patch(
+            "/api/v1/products/666",
+            json=payload
+        )
+        self.assertEquals(response.status_code, 422)

@@ -6,9 +6,12 @@ name = "pypi"
 [packages]
 flask = "*"
 gunicorn = "*"
+httpie = "*"
 
 [dev-packages]
 pylint = "*"
+flask-testing = "*"
+nose = "*"
 
 [requires]
 python_version = "3.7"
